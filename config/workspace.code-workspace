@@ -1,0 +1,17 @@
+{
+  "folders": [
+	{
+		"path": ".."
+	},
+	{
+		"path": "../../../quickstart-testing"
+	},
+	{
+		"path": "../../../Shopping-Cart/Firebase"
+	},
+	{
+		"path": "../../../vagrant/markets/workspace/markets"
+	}
+],
+  "settings": {}
+}

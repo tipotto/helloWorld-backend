@@ -1,0 +1,186 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /{document=**} {
+      allow read, write: if request.auth.uid != null;
+    }
+
+    // function documentPath(paths) {
+    //   return path([['databases', database, 'documents'].join('/'), paths.join('/')].join('/'));
+    // }
+
+    // function authUserId() {
+    //   return request.auth.uid
+    // }
+
+    // function isAuthenticated() {
+    //   return request.auth != null;
+    // }
+
+    // function isUserAuthenticated(userID) {
+    //   return authUserId() == userID;
+    // }
+
+    // function existingData() {
+    //   return resource.data;
+    // }
+
+    // function incomingData() {
+    //   return request.resource.data;
+    // }
+
+    // function authUser() {
+    //   // /databases/$(database)/documents/users/$(request.auth.uid)
+    //   return get(documentPath('users', authUserId()))
+    // }
+
+    // // function getChannelMember(channelID) {
+    // //   return get(/databases/$(database)/documents/channels/$(channelID)/users/$(request.auth.uid));
+    // // }
+
+    // // function getAfterChannelMember(channelID) {
+    // //   // /databases/$(database)/documents/channels/$(channelID)/users/$(request.auth.uid)
+    // //   return getAfter(documentPath('channels', channelID, 'users', request.auth.uid))
+    // // }
+
+    // // function channelLangData(channelID, langID) {
+    // //   return existUserLang(channelID, langID) == false ? 
+    // //     getAfterData('channels', channelID, 'langs', authUser().data.lang) : get('channels', channelID, 'langs', authUser().data.lang)
+    // // }
+
+    // function getAfterData(paths) {
+    //   // /databases/$(database)/documents/channels/$(channelID)/users/$(request.auth.uid)
+    //   return getAfter(documentPath(paths))
+    // }
+
+    // function isChannelMember(channelID) {
+    //   // /databases/$(database)/documents/channels/$(channelID)/users/$(request.auth.uid)
+    //   return exists(documentPath('channels', channelID, 'users', authUserId()));
+    // }
+
+    // function existUserLang(channelID, langID) {
+    //   // /databases/$(database)/documents/channels/$(channelID)/langs/$(langID)
+    //   return exists(documentPath('channels', channelID, 'langs', langID));
+    // }
+
+    // function isUserLang(langID) {
+    //   return authUser().data.lang == langID
+    // }
+
+    // // function isUserLang(channelID, langID) {
+    // //   return getChannelMember(channelID).data.lang == langID
+    // // }
+
+    // // コレクション名をUserからusersなどに変更した方がよさそう
+    // match /users/{userID} {
+    //   // ユーザー検索を許可する場合、誰でもユーザーリストを参照できる必要あり
+    //   // しかし、Algoliaを利用してバックグラウンド（呼び出し可能関数?）で結果を返す仕様にする場合、
+    //   // クライアントアプリケーションから取得する必要はない？
+      
+    //   // getを許可する必要があるかは要検討
+    //   // しかし、Algoliaなど外部APIとの連携をバックグラウンド（呼び出し可能関数）で行う時に、
+    //   // Admin SDKの特権階層からの取得の場合、クライアントアプリケーションからのreadは全面的に拒否するのもアリ？
+    //   allow read: if isAuthenticated();
+
+    //   // TODO: 基本的に、各ユーザーは自身のUserドキュメントのみを作成・更新できる
+    //   // それ以外のUserドキュメントへの更新内容の反映は、バックグラウンド関数で行うようにしたい
+    //   // 現状では他のUserのドキュメントへの更新もクライアント側で全て行っているため、updateは全面的に許可する必要アリ
+    //   allow create, update: if isAuthenticated() && isUserAuthenticated(userID)
+
+    //   match /channels/{channelID} {
+    //     allow read: if isAuthenticated() && isUserAuthenticated(userID)
+
+    //     // createを許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. ユーザー自身のドキュメントを作成している
+    //     // 3. ユーザーの言語がチャンネルに紐づいている
+    //     // 4. ユーザーのデータがチャンネルメンバーとして紐づいている
+    //     allow create: if isAuthenticated()
+    //       && isUserAuthenticated(userID)
+    //       && getAfterData('channels', channelID, 'langs', authUser().data.lang)
+    //       && getAfterData('channels', channelID, 'users', authUserId())
+    //   }
+
+    //   match /chats/{chatID} {
+    //     // read(get, list)を許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. ログインユーザー自身である
+    //     // ユーザードキュメント以下のサブコレクションは、ユーザー自身しかread不可
+    //     // また書き込みについては、Admin SDKで特権階層から更新
+    //     allow read: if isAuthenticated() && isUserAuthenticated(userID)
+
+    //   }
+
+    // }
+
+    // match /channels/{channelID} {
+    //   // allow read: if request.auth != null;
+    //   // allow write: if request.auth.uid == userID;
+      
+    //   match /users/{userID} {
+        
+    //     // getを許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. 参照するドキュメントのuserIDが、リクエストユーザーのIDと一致している
+    //     allow get: if isAuthenticated() && isUserAuthenticated(userID)
+    //     // allow get: if isAuthenticated() && isUserAuthenticated(userID) && isChannelMember(channelID)
+
+    //     // listを許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. チャンネルユーザーである
+    //     allow list: if isAuthenticated() && isChannelMember(channelID)
+
+    //     // create, updateを許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. 作成するドキュメントのuserIDが、リクエストユーザーのIDと一致している
+    //     // allow create, update: if isAuthenticated() && isUserAuthenticated(userID) 
+        
+    //     // スキーマ検証
+    //     // id == userID, lang == userLangを検証
+    //     // createを許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. ユーザー自身のドキュメントを作成している
+    //     // 3. ユーザーの言語がチャンネルに紐づいている
+    //     // 4. チャンネルデータがユーザーに紐づいている        
+    //     allow create: if isAuthenticated() 
+    //       && isUserAuthenticated(userID)
+    //       && ((!existUserLang(channelID, incomingData().lang) && getAfterData('channels', channelID, 'langs', incomingData().lang))
+    //        || (existUserLang(channelID, incomingData().lang)))
+    //       && getAfterData('users', authUserId(), 'channels', channelID)
+
+    //   }
+
+    //   match /langs/{langID}
+    //     // getを許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. チャンネルメンバーである
+    //     // 3. 取得するドキュメントのlang（ドキュメントID）がユーザー言語と一致している
+    //     // この時点ではチャンネルメンバーとして自分のユーザーデータが追加済みと想定される
+    //     allow get: if isAuthenticated() && isChannelMember(channelID) && isUserLang(langID)
+
+    //     // createを許可する条件
+    //     // 1. 認証済みユーザーである
+    //     // 2. チャンネルメンバーである
+    //     // 3. ドキュメントIDとlangフィールドのlangコードが一致している
+    //     // 4. 作成するドキュメントのlang（ドキュメントID）がユーザー言語と一致している
+    //     // 5. 作成するドキュメントのlangが存在しない
+
+    //     // 言語ドキュメント作成時点（チャンネル作成 or チャンネル参加時）には、
+    //     // まだチャンネルメンバーとして自分のユーザーデータが追加されていない（バッチ処理が完了していない）
+    //     allow create: if isAuthenticated() 
+    //       && isChannelMember(channelID) 
+    //       && incomingData().lang == langID 
+    //       && isUserLang(langID) 
+    //       && existUserLang(channelID, langID) == false
+    //       && getAfterData('channels', channelID, 'users', authUserId())
+    //       && getAfterData('users', authUserId(), 'channels', channelID)
+
+    //     // updateを許可するべきか要検討
+    //     // updateされた場合、更新内容を他の全ての言語ドキュメントに反映するにはname, aboutChannelを再翻訳する必要アリ
+    //     // また、検索対象となるAlgoliaのデータも全て更新する必要がある
+
+    //   }
+    // }
+  }
+}
